@@ -1,0 +1,60 @@
+import { NextResponse } from "next/server";
+import { VERCEL_API_URL } from "@/app/utils/constants";
+const vercelToken = process.env.ACCESS_TOKEN;
+const teamId = process.env.TEAM_ID;
+
+if (!vercelToken) {
+  throw new Error("ACCESS_TOKEN is required");
+}
+
+if (!teamId) {
+  throw new Error("TEAM_ID is required");
+}
+
+export async function POST() {
+  try {
+    const url = `${VERCEL_API_URL}/v10/projects?teamId=${teamId}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${vercelToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: `temp-project-${generateRandomId(10)}`,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Vercel API error:', response.status, errorData);
+      return NextResponse.json(
+        { 
+          error: `Failed to create project: ${response.status}`,
+          details: errorData
+        },
+        { status: response.status }
+      );
+    }
+
+    const projectData = await response.json();
+    return NextResponse.json(projectData, { status: 200 });
+
+  } catch (error) {
+    console.error("Project creation error:", error);
+    return NextResponse.json(
+      { error: "Failed to create project" },
+      { status: 500 }
+    );
+  }
+}
+
+function generateRandomId(length: number) {
+  const characters = "abcdefghijklmnopqrstuvwxyz0123456789";
+  let randomId = "";
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomId += characters[randomIndex];
+  }
+  return randomId;
+}
