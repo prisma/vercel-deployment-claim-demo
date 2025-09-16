@@ -1,5 +1,7 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { VERCEL_API_URL } from "@/app/utils/constants";
+import crypto from "crypto";
+
 const vercelToken = process.env.ACCESS_TOKEN;
 const teamId = process.env.TEAM_ID;
 
@@ -11,27 +13,37 @@ if (!teamId) {
   throw new Error("TEAM_ID is required");
 }
 
-export async function POST() {
+export async function POST(req: NextRequest) {
   try {
+    const body = await req.json();
+    const { template, environmentVariables } = body;
+
+    const projectPayload: any = {
+      name: `temp-project-${generateRandomId(10)}`,
+    };
+
+    // Add environment variables if provided
+    if (environmentVariables && Array.isArray(environmentVariables)) {
+      projectPayload.environmentVariables = environmentVariables;
+    }
+
     const url = `${VERCEL_API_URL}/v10/projects?teamId=${teamId}`;
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${vercelToken}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${vercelToken}`,
+        "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        name: `temp-project-${generateRandomId(10)}`,
-      }),
+      body: JSON.stringify(projectPayload),
     });
 
     if (!response.ok) {
       const errorData = await response.json();
-      console.error('Vercel API error:', response.status, errorData);
+      console.error("Vercel API error:", response.status, errorData);
       return NextResponse.json(
-        { 
+        {
           error: `Failed to create project: ${response.status}`,
-          details: errorData
+          details: errorData,
         },
         { status: response.status }
       );
@@ -39,7 +51,6 @@ export async function POST() {
 
     const projectData = await response.json();
     return NextResponse.json(projectData, { status: 200 });
-
   } catch (error) {
     console.error("Project creation error:", error);
     return NextResponse.json(

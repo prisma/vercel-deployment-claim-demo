@@ -1,9 +1,9 @@
 import { VERCEL_API_URL } from "@/app/utils/constants";
 import { type NextRequest, NextResponse } from "next/server";
 
-async function checkDeploymentStatus(url: string) {
+async function checkDeploymentStatus(deploymentId: string) {
   const response = await fetch(
-    `${VERCEL_API_URL}/v13/deployments/get/?url=${url}`,
+    `${VERCEL_API_URL}/v6/deployments/${deploymentId}`,
     {
       headers: {
         Authorization: `Bearer ${process.env.ACCESS_TOKEN}`,
@@ -14,8 +14,13 @@ async function checkDeploymentStatus(url: string) {
   );
 
   if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error(
+      `Failed to check deployment status: ${response.status} ${response.statusText}`,
+      errorData
+    );
     throw new Error(
-      `Failed to check deployment status: ${response.statusText}`
+      `Failed to check deployment status: ${response.status} ${response.statusText}`
     );
   }
 
@@ -36,11 +41,17 @@ export async function GET(
     while (Date.now() - startTime < maxWaitTime) {
       const deploymentStatus = await checkDeploymentStatus(deploymentId);
 
-      if (deploymentStatus.readyState === "READY") {
+      if (
+        deploymentStatus.state === "READY" ||
+        deploymentStatus.readyState === "READY"
+      ) {
         return NextResponse.json({ status: "success", data: deploymentStatus });
       }
 
-      if (deploymentStatus.readyState === "ERROR") {
+      if (
+        deploymentStatus.state === "ERROR" ||
+        deploymentStatus.readyState === "ERROR"
+      ) {
         return NextResponse.json(
           { status: "error", message: "Deployment failed" },
           { status: 400 }
@@ -56,8 +67,13 @@ export async function GET(
     );
   } catch (error) {
     console.error("Error checking deployment status:", error);
+    console.error("Deployment ID:", deploymentId);
     return NextResponse.json(
-      { status: "error", message: "Failed to check deployment status" },
+      {
+        status: "error",
+        message: "Failed to check deployment status",
+        deploymentId,
+      },
       { status: 500 }
     );
   }

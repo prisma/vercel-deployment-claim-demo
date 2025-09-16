@@ -50,13 +50,32 @@ export default function Home() {
     }
 
     try {
+      // Prepare environment variables for Better Auth template
+      const environmentVariables = [];
+      if (selectedTemplate === "nextjs_with_prisma_and_better_auth") {
+        // Generate a random BETTER_AUTH_SECRET
+        const betterAuthSecret = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
+
+        environmentVariables.push({
+          key: "BETTER_AUTH_SECRET",
+          value: betterAuthSecret,
+          target: ["production", "preview", "development"],
+          type: "encrypted"
+        });
+      }
+
       // First create the project
       const projectResponse = await fetch("/api/create-project", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({}),
+        body: JSON.stringify({
+          template: selectedTemplate,
+          environmentVariables: environmentVariables.length > 0 ? environmentVariables : undefined
+        }),
       });
 
       if (!projectResponse.ok) {
@@ -68,8 +87,8 @@ export default function Home() {
 
       const projectData = await projectResponse.json();
 
-      // Create authorization if Next.js + Prisma template is selected
-      if (selectedTemplate === "nextjs_with_prisma") {
+      // Create authorization if Next.js + Prisma template is selected (including Better Auth)
+      if (selectedTemplate === "nextjs_with_prisma" || selectedTemplate === "nextjs_with_prisma_and_better_auth") {
         setDeploymentStep(DeploymentStep.CREATING_AUTHORIZATION);
         try {
           const authorizationResponse = await fetch("/api/create-authorization", {
@@ -172,13 +191,17 @@ export default function Home() {
       }
 
       // Then deploy to the created project
+      console.log(`🚀 Starting deployment to project: ${projectData.name}`);
       setDeploymentStep(DeploymentStep.DEPLOYING);
       const response = await fetch(`/api/deploy?projectName=${projectData.name}`, {
         method: "POST",
         body: formData,
       });
 
+      console.log(`📡 Deploy API Response: ${response.status} ${response.statusText}`);
+
       if (response.status === 429) {
+        console.error("❌ Rate limit exceeded");
         setError("You've reached the limit. Please try again later.");
         return;
       }
@@ -205,7 +228,7 @@ export default function Home() {
         } catch (error) {
           if ((error as Error).name === "AbortError") {
             const response = await fetch(
-              `/api/cancel-deployment/${data.deployment.id}`,
+              `/api/cancel-deployment/${data.deployment.url}`,
               {
                 method: "PATCH",
               }
@@ -271,19 +294,6 @@ export default function Home() {
 
   const templates = [
     {
-      id: "nextjs",
-      name: "Next.js",
-      icon: (
-        <Image
-          src="images/nextjs.svg"
-          width={32}
-          height={32}
-          alt="Next.js logo"
-        />
-      ),
-      averageDeployTimeInSeconds: 42,
-    },
-    {
       id: "nextjs_with_prisma",
       name: "Next.js + Prisma",
       icon: (
@@ -306,25 +316,33 @@ export default function Home() {
       averageDeployTimeInSeconds: 50,
     },
     {
-      id: "nuxtjs",
-      name: "Nuxt",
+      id: "nextjs_with_prisma_and_better_auth",
+      name: "Next.js + Prisma + Better Auth",
       icon: (
-        <Image src="images/nuxt.svg" width={32} height={32} alt="Nuxt logo" />
+        <div className="flex items-center justify-center space-x-1 h-8">
+          <Image
+            src="images/nextjs.svg"
+            width={24}
+            height={24}
+            alt="Next.js logo"
+          />
+          <span className="text-gray-600 text-sm font-bold flex items-center px-0.5">+</span>
+          <Image
+            src="/images/prisma.svg"
+            width={24}
+            height={24}
+            alt="Prisma logo"
+          />
+          <span className="text-gray-600 text-sm font-bold flex items-center px-0.5">+</span>
+          <Image
+            src="/images/better-auth.svg"
+            width={24}
+            height={24}
+            alt="Better Auth logo"
+          />
+        </div>
       ),
-      averageDeployTimeInSeconds: 30,
-    },
-    {
-      id: "svelte",
-      name: "Svelte",
-      icon: (
-        <Image
-          src="images/svelte.svg"
-          width={32}
-          height={32}
-          alt="Svelte logo"
-        />
-      ),
-      averageDeployTimeInSeconds: 17,
+      averageDeployTimeInSeconds: 60,
     },
   ];
 

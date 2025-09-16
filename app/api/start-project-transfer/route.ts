@@ -13,21 +13,37 @@ if (!teamId) {
 }
 
 export async function POST(req: Request) {
-  const { projectId } = await req.json();
+  try {
+    const { projectId } = await req.json();
 
-  const res = await fetch(
-    `${VERCEL_API_URL}/v9/projects/${projectId}/transfer-request?teamId=${teamId}`,
-    {
-      method: "POST",
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${vercelToken}`,
-      },
-      body: JSON.stringify({}),
+    console.log("Starting project transfer for:", projectId);
+
+    const res = await fetch(
+      `${VERCEL_API_URL}/v9/projects/${projectId}/transfer-request?teamId=${teamId}`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${vercelToken}`,
+        },
+        body: JSON.stringify({}),
+      }
+    );
+
+    const json = await res.json();
+
+    if (!res.ok) {
+      console.error("Project transfer failed:", res.status, json);
+    } else {
+      console.log("Project transfer successful:", json);
     }
-  );
 
-  const json = await res.json();
-
-  return NextResponse.json(json, { status: res.status });
+    return NextResponse.json(json, { status: res.status });
+  } catch (error) {
+    console.error("Project transfer error:", error);
+    return NextResponse.json(
+      { error: "Failed to start project transfer" },
+      { status: 500 }
+    );
+  }
 }

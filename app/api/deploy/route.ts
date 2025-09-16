@@ -36,10 +36,12 @@ export async function POST(req: NextRequest) {
     let fileSha: string | undefined;
 
     if (templateKey) {
+      // Handle templates - all use tgz format
+      const templateExtension = "tgz";
       const templateFilePath = path.join(
         process.cwd(),
         "templates",
-        `${templateKey}.tgz`
+        `${templateKey}.${templateExtension}`
       );
       try {
         localFileBuffer = await fs.readFile(templateFilePath);
@@ -49,8 +51,12 @@ export async function POST(req: NextRequest) {
           .digest("hex");
       } catch (err) {
         console.error(`Error reading template file: ${(err as Error).message}`);
+        console.error(`Template path: ${templateFilePath}`);
         return NextResponse.json(
-          { error: `Template file '${templateKey}' not found` },
+          {
+            error: `Template file '${templateKey}' not found`,
+            path: templateFilePath,
+          },
           { status: 400 }
         );
       }
@@ -74,11 +80,16 @@ export async function POST(req: NextRequest) {
     );
 
     if (!uploadResponse.ok) {
+      const uploadError = await uploadResponse.json().catch(() => ({}));
+      console.error("File upload error:", uploadResponse.status, uploadError);
       return NextResponse.json(
-        { error: "Failed to upload file" },
-        { status: 500 }
+        { error: "Failed to upload file", details: uploadError },
+        { status: uploadResponse.status }
       );
     }
+
+    const uploadResult = await uploadResponse.json();
+    console.log("File uploaded successfully:", uploadResult);
 
     const deploymentPayload: {
       files: Array<{ file: string; sha: string }>;
@@ -97,7 +108,11 @@ export async function POST(req: NextRequest) {
       ],
       name: `deployment-${Date.now()}`,
       projectSettings: {
-        framework: templateKey === "nextjs_with_prisma" ? "nextjs" : (templateKey || "nextjs"),
+        framework:
+          templateKey === "nextjs_with_prisma" ||
+          templateKey === "nextjs_with_prisma_and_better_auth"
+            ? "nextjs"
+            : templateKey || "nextjs",
       },
       project: projectName,
     };
@@ -115,7 +130,7 @@ export async function POST(req: NextRequest) {
 
     if (!deploymentResponse.ok) {
       const errorData = await deploymentResponse.json();
-      console.error('Deployment error:', deploymentResponse.status, errorData);
+      console.error("Deployment error:", deploymentResponse.status, errorData);
       return NextResponse.json(
         { error: "Failed to create deployment", details: errorData },
         { status: deploymentResponse.status }
