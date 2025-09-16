@@ -2,7 +2,7 @@
 
 This application demonstrates how to transfer a Vercel project from one account to another using the [Claim Deployments](https://vercel.com/docs/deployments/claim-deployments) feature.
 
-The demo covers the entire process, including creating a project in the host team, initiating the transfer, and enabling users to claim the project for themselves. Projects are created with Next.js templates that include Prisma Postgres integration and optional Better Auth authentication.
+The demo covers the entire process, including creating a project in the host team, initiating the transfer, and enabling users to claim the project for themselves. Projects are created with Next.js templates that include [Prisma Postgres](https://www.prisma.io/postgres) integration and optional Better Auth authentication.
 
 Try it out at: [https://claim-deployments-demo.vercel.app](https://claim-deployments-demo.vercel.app)
 
