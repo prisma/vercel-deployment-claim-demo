@@ -317,7 +317,7 @@ export default function Home() {
     },
     {
       id: "nextjs_with_prisma_and_better_auth",
-      name: "Next.js + Prisma + Better Auth",
+      name: "Next.js + Prisma + Better-Auth",
       icon: (
         <div className="flex items-center justify-center space-x-1 h-8">
           <Image
