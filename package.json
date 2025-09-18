@@ -4,8 +4,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "build-templates": "./scripts/build-templates.sh"
+    "lint": "next lint"
   },
   "dependencies": {
     "@sparticuz/chromium": "133.0.0",
