@@ -9,6 +9,7 @@ import { BuildLogs } from "@/components/build-logs";
 import LoadingSpinner from "@/components/loading-spinner";
 import { ProgressBar } from "@/components/progress-bar";
 import { DeploymentStep } from "@/types/deployment";
+import Footer from "@/app/footer";
 
 const TIMEOUT_MS = 4 * 60 * 1000;
 
@@ -363,8 +364,7 @@ export default function Home() {
         Deploy to Vercel
       </h2>
       <p className="text-sm text-neutral-500 mt-2">
-        Choose a template or upload your own project.
-      </p>
+        Choose a template to deploy to Vercel with a ready-to-use <span className="text-blue-600"><a href="https://pris.ly/postgres?utm_source=claim-deployments-demo&utm_campaign=vercel_claim_partnership" rel="noopener noreferrer">Prisma Postgres</a></span> database, or upload your own project as a zip file.      </p>
       <div className="mt-6">
         <div className="w-full">
           <div className="flex rounded-md p-1 border border-neutral-200">
@@ -505,6 +505,7 @@ export default function Home() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

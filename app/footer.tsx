@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="flex flex-wrap items-center justify-center space-x-6">
         <Link
           className="flex items-center hover:text-gray-600 transition-colors"
-          href="https://github.com/vercel/claim-deployments-demo"
+          href="https://github.com/prisma/vercel-deployment-claim-demo?utm_source=claim-deployments-demo&utm_medium=footer&utm_campaign=vercel_claim_partnership"
           target="_blank"
           rel="noopener noreferrer"
           title="GitHub Repository"
@@ -24,7 +24,7 @@ export default function Footer() {
         <div className="h-6 w-px bg-gray-300" />
         <Link
           className="flex items-center hover:text-gray-600 transition-colors"
-          href="https://vercel.com/docs/deployments/claim-deployments"
+          href="https://pris.ly/claim-vercel-guide?utm_source=claim-deployments-demo&utm_medium=footer&utm_campaign=vercel_claim_partnership"
           target="_blank"
           rel="noopener noreferrer"
           title="Documentation"
@@ -41,7 +41,7 @@ export default function Footer() {
         <div className="hidden sm:block h-6 w-px bg-gray-300" />
         <Link
           className="flex items-center hover:text-gray-600 transition-colors sm:w-auto w-full justify-center sm:justify-start pt-4 sm:pt-0"
-          href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fclaim-deployments-demo&env=ACCESS_TOKEN,TEAM_ID"
+          href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fprisma%2Fvercel-deployment-claim-demo&env=TEAM_ID,ACCESS_TOKEN,INTEGRATION_CONFIG_ID&project-name=claim-demo&integration-ids=iap_yVdbiKqs5fLkYDAB"
           target="_blank"
           rel="noopener noreferrer"
           title="Deploy to Vercel"
@@ -57,7 +57,7 @@ export default function Footer() {
         </Link>
       </div>
       <div className="mt-6 text-center text-sm text-gray-500">
-        © {new Date().getFullYear()} Vercel, Inc. All rights reserved.
+        © {new Date().getFullYear()} Prisma Data, Inc.
       </div>
     </footer>
   );
