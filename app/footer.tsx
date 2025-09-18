@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="flex flex-wrap items-center justify-center space-x-6">
         <Link
           className="flex items-center hover:text-gray-600 transition-colors"
-          href="https://github.com/prisma/vercel-deployment-claim-demo?utm_source=claim-deployments-demo&utm_medium=footer&utm_campaign=vercel_claim_partnership"
+          href="https://github.com/prisma/vercel-deployment-claim-demo?utm_source=claim_deployments_demo&utm_medium=footer&utm_campaign=vercel_claim_partnership"
           target="_blank"
           rel="noopener noreferrer"
           title="GitHub Repository"
@@ -24,7 +24,7 @@ export default function Footer() {
         <div className="h-6 w-px bg-gray-300" />
         <Link
           className="flex items-center hover:text-gray-600 transition-colors"
-          href="https://pris.ly/claim-vercel-guide?utm_source=claim-deployments-demo&utm_medium=footer&utm_campaign=vercel_claim_partnership"
+          href="https://pris.ly/claim-vercel-guide?utm_source=claim_deployments_demo&utm_medium=footer&utm_campaign=vercel_claim_partnership"
           target="_blank"
           rel="noopener noreferrer"
           title="Documentation"
