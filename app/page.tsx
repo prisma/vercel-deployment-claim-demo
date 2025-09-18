@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { PRISMA_INTEGRATION_ID, PRISMA_INTEGRATION_PRODUCT_ID } from "@/app/utils/constants";
 import { BuildLogs } from "@/components/build-logs";
 import LoadingSpinner from "@/components/loading-spinner";
 import { ProgressBar } from "@/components/progress-bar";
@@ -97,12 +96,7 @@ export default function Home() {
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({
-              integrationIdOrSlug: PRISMA_INTEGRATION_ID,
-              integrationProductId: PRISMA_INTEGRATION_PRODUCT_ID,
-              billingPlanId: "business",
-              region: "iad1"
-            }),
+            body: JSON.stringify({}), // All values now handled server-side
           });
 
           if (!authorizationResponse.ok) {
@@ -126,10 +120,7 @@ export default function Home() {
               },
               body: JSON.stringify({
                 projectName: projectData.name,
-                integrationProductId: PRISMA_INTEGRATION_PRODUCT_ID,
-                authorizationId: authorizationData.authorization.id,
-                billingPlanId: "business",
-                region: "iad1"
+                authorizationId: authorizationData.authorization.id
               }),
             });
 
@@ -153,7 +144,6 @@ export default function Home() {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                  integrationProductId: PRISMA_INTEGRATION_PRODUCT_ID,
                   storeId: storageData.storage.store.id,
                   projectId: projectData.id
                 }),

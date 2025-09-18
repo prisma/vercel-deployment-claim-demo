@@ -1,5 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { VERCEL_API_URL } from "@/app/utils/constants";
+import {
+  VERCEL_API_URL,
+  PRISMA_INTEGRATION_ID,
+  PRISMA_INTEGRATION_PRODUCT_ID,
+  DEFAULT_BILLING_PLAN_ID,
+  DEFAULT_REGION,
+} from "@/app/utils/constants";
 
 const vercelToken = process.env.ACCESS_TOKEN;
 const teamId = process.env.TEAM_ID;
@@ -16,33 +22,11 @@ export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const {
-      integrationIdOrSlug,
-      integrationProductId,
-      billingPlanId,
-      region = "iad1"
-    } = body;
-
-    if (!integrationIdOrSlug) {
-      return NextResponse.json(
-        { error: "integrationIdOrSlug is required  aaaaa" },
-        { status: 400 }
-      );
-    }
-
-    if (!integrationProductId) {
-      return NextResponse.json(
-        { error: "integrationProductId is required" },
-        { status: 400 }
-      );
-    }
-
-    if (!billingPlanId) {
-      return NextResponse.json(
-        { error: "billingPlanId is required" },
-        { status: 400 }
-      );
-    }
+    // Use server-side constants instead of client-provided values
+    const integrationIdOrSlug = PRISMA_INTEGRATION_ID;
+    const integrationProductId = PRISMA_INTEGRATION_PRODUCT_ID;
+    const billingPlanId = DEFAULT_BILLING_PLAN_ID;
+    const region = DEFAULT_REGION;
 
     const integrationConfigId = process.env.INTEGRATION_CONFIG_ID;
     if (!integrationConfigId) {
@@ -55,10 +39,10 @@ export async function POST(req: NextRequest) {
     const authorizationUrl = `${VERCEL_API_URL}/v1/integrations/billing/authorization?teamId=${teamId}`;
 
     const authorizationResponse = await fetch(authorizationUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${vercelToken}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${vercelToken}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         integrationIdOrSlug: integrationIdOrSlug,
@@ -71,21 +55,24 @@ export async function POST(req: NextRequest) {
 
     if (!authorizationResponse.ok) {
       const errorData = await authorizationResponse.json();
-      console.error('Failed to create authorization:', authorizationResponse.status, errorData);
+      console.error(
+        "Failed to create authorization:",
+        authorizationResponse.status,
+        errorData
+      );
       return NextResponse.json(
         {
           error: `Failed to create authorization: ${authorizationResponse.status}`,
-          details: errorData
+          details: errorData,
         },
         { status: authorizationResponse.status }
       );
     }
 
     const authorizationData = await authorizationResponse.json();
-    console.log('Authorization created:', authorizationData);
+    console.log("Authorization created:", authorizationData);
 
     return NextResponse.json(authorizationData, { status: 200 });
-
   } catch (error) {
     console.error("Authorization creation error:", error);
     return NextResponse.json(

@@ -1,17 +1,21 @@
 import { type NextRequest, NextResponse } from "next/server";
-import { VERCEL_API_URL } from "@/app/utils/constants";
+import {
+  VERCEL_API_URL,
+  PRISMA_INTEGRATION_PRODUCT_ID,
+  DEFAULT_BILLING_PLAN_ID,
+  DEFAULT_REGION,
+} from "@/app/utils/constants";
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
 
-    const {
-      projectName,
-      integrationProductId,
-      authorizationId,
-      billingPlanId,
-      region = "iad1",
-    } = body;
+    const { projectName, authorizationId } = body;
+
+    // Use server-side constants
+    const integrationProductId = PRISMA_INTEGRATION_PRODUCT_ID;
+    const billingPlanId = DEFAULT_BILLING_PLAN_ID;
+    const region = DEFAULT_REGION;
 
     const vercelToken = process.env.ACCESS_TOKEN;
     const teamId = process.env.TEAM_ID;
@@ -31,23 +35,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!integrationProductId) {
-      return NextResponse.json(
-        { error: "integrationProductId is required" },
-        { status: 400 }
-      );
-    }
-
     if (!authorizationId) {
       return NextResponse.json(
         { error: "authorizationId is required" },
-        { status: 400 }
-      );
-    }
-
-    if (!billingPlanId) {
-      return NextResponse.json(
-        { error: "billingPlanId is required" },
         { status: 400 }
       );
     }
