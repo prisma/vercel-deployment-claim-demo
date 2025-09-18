@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { VERCEL_API_URL } from "@/app/utils/constants";
-import crypto from "crypto";
 
 const vercelToken = process.env.ACCESS_TOKEN;
 const teamId = process.env.TEAM_ID;
