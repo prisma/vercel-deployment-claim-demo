@@ -15,7 +15,7 @@ if (!teamId) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { template, environmentVariables } = body;
+    const { environmentVariables } = body;
 
     const projectPayload: any = {
       name: `temp-project-${generateRandomId(10)}`,
