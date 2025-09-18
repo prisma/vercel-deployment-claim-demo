@@ -5,7 +5,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     const {
-      integrationConfigId,
       integrationProductId,
       storeId,
       projectId
@@ -13,11 +12,12 @@ export async function POST(req: NextRequest) {
 
     const vercelToken = process.env.ACCESS_TOKEN;
     const teamId = process.env.TEAM_ID;
+    const integrationConfigId = process.env.INTEGRATION_CONFIG_ID;
 
     if (!integrationConfigId) {
       return NextResponse.json(
-        { error: "integrationConfigId is required" },
-        { status: 400 }
+        { error: "INTEGRATION_CONFIG_ID environment variable is required" },
+        { status: 500 }
       );
     }
 

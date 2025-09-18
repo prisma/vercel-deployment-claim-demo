@@ -7,15 +7,15 @@ export async function POST(req: NextRequest) {
 
     const {
       projectName,
-      integrationConfigId,
       integrationProductId,
       authorizationId,
       billingPlanId,
-      region = "iad1"
+      region = "iad1",
     } = body;
 
     const vercelToken = process.env.ACCESS_TOKEN;
     const teamId = process.env.TEAM_ID;
+    const integrationConfigId = process.env.INTEGRATION_CONFIG_ID;
 
     if (!projectName) {
       return NextResponse.json(
@@ -26,8 +26,8 @@ export async function POST(req: NextRequest) {
 
     if (!integrationConfigId) {
       return NextResponse.json(
-        { error: "integrationConfigId is required" },
-        { status: 400 }
+        { error: "INTEGRATION_CONFIG_ID environment variable is required" },
+        { status: 500 }
       );
     }
 
@@ -69,10 +69,10 @@ export async function POST(req: NextRequest) {
     const storageUrl = `${VERCEL_API_URL}/v1/storage/stores/integration?teamId=${teamId}`;
 
     const storageResponse = await fetch(storageUrl, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${vercelToken}`,
-        'Content-Type': 'application/json',
+        Authorization: `Bearer ${vercelToken}`,
+        "Content-Type": "application/json",
       },
       body: JSON.stringify({
         metadata: { region },
@@ -81,29 +81,30 @@ export async function POST(req: NextRequest) {
         integrationConfigurationId: integrationConfigId,
         integrationProductIdOrSlug: integrationProductId,
         authorizationId: authorizationId,
-        source: "marketplace"
+        source: "marketplace",
       }),
     });
 
     if (!storageResponse.ok) {
       const errorData = await storageResponse.json();
-      console.error('Failed to create storage store:', storageResponse.status, errorData);
+      console.error(
+        "Failed to create storage store:",
+        storageResponse.status,
+        errorData
+      );
       return NextResponse.json(
         {
           error: `Failed to create storage store: ${storageResponse.status}`,
-          details: errorData
+          details: errorData,
         },
         { status: storageResponse.status }
       );
     }
 
     const storageData = await storageResponse.json();
-    console.log('Storage store created:', storageData);
+    console.log("Storage store created:", storageData);
 
-    return NextResponse.json(
-      { storage: storageData },
-      { status: 200 }
-    );
+    return NextResponse.json({ storage: storageData }, { status: 200 });
   } catch (error) {
     console.error("Storage store creation error:", error);
     return NextResponse.json(

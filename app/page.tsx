@@ -125,7 +125,6 @@ export default function Home() {
               },
               body: JSON.stringify({
                 projectName: projectData.name,
-                integrationConfigId: authorizationData.authorization.integrationConfigurationId,
                 integrationProductId: PRISMA_INTEGRATION_PRODUCT_ID,
                 authorizationId: authorizationData.authorization.id,
                 billingPlanId: "business",
@@ -153,7 +152,6 @@ export default function Home() {
                   "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                  integrationConfigId: authorizationData.authorization.integrationConfigurationId,
                   integrationProductId: PRISMA_INTEGRATION_PRODUCT_ID,
                   storeId: storageData.storage.store.id,
                   projectId: projectData.id
