@@ -6,9 +6,9 @@ import WebsitePreviewSkeleton from "./website-preview-skeleton";
 export default async function ClaimPage({
   searchParams,
 }: {
-  searchParams: Promise<{ 
-    code: string; 
-    previewUrl: string; 
+  searchParams: Promise<{
+    code: string;
+    previewUrl: string;
     deploymentUrl?: string;
     framework?: string;
   }>;
@@ -40,8 +40,8 @@ export default async function ClaimPage({
         </h2>
       </div>
       <Suspense fallback={<WebsitePreviewSkeleton />}>
-        <WebsitePreview 
-          url={previewUrl} 
+        <WebsitePreview
+          url={previewUrl}
           deploymentUrl={deploymentUrl}
           framework={framework}
         />
