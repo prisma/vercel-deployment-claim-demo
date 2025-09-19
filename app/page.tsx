@@ -64,6 +64,14 @@ export default function Home() {
           target: ["production", "preview", "development"],
           type: "encrypted"
         });
+
+        // Add BETTER_AUTH_TRUSTED_ORIGINS to allow all Vercel deployment URLs
+        environmentVariables.push({
+          key: "BETTER_AUTH_TRUSTED_ORIGINS",
+          value: "*.vercel.app",
+          target: ["production", "preview", "development"],
+          type: "plain"
+        });
       }
 
       // First create the project
