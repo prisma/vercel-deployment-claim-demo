@@ -4,8 +4,8 @@ import { Geist, Geist_Mono } from 'next/font/google';
 // import Footer from './footer';
 
 export const metadata: Metadata = {
-  title: 'Claim Deployments Demo',
-  description: 'Claiming deployments using Project transfer flow'
+  title: 'Instant App Deployments Demo',
+  description: 'Deploy Next.js applications instantly to Vercel with ready-to-use Prisma Postgres databases using the project transfer flow'
 };
 
 const geistSans = Geist({
@@ -32,7 +32,6 @@ export default function RootLayout({
         <div className="flex-1 sm:flex-none bg-white rounded-xl sm:shadow-md overflow-hidden sm:border sm:border-neutral-200 p-6 sm:my-auto w-full max-w-2xl">
           {children}
         </div>
-        {/* <Footer /> */}
       </body>
     </html>
   );
