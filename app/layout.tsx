@@ -1,6 +1,7 @@
 import './globals.css';
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import { CSPostHogProvider } from '@/lib/posthog-provider';
 // import Footer from './footer';
 
 export const metadata: Metadata = {
@@ -29,9 +30,11 @@ export default function RootLayout({
       className={`${geistSans.className} ${geistMono.className} antialiased h-full`}
     >
       <body className="flex min-h-full flex-col justify-between items-center sm:bg-neutral-50 sm:px-6">
-        <div className="flex-1 sm:flex-none bg-white rounded-xl sm:shadow-md overflow-hidden sm:border sm:border-neutral-200 p-6 sm:my-auto w-full max-w-2xl">
-          {children}
-        </div>
+        <CSPostHogProvider>
+          <div className="flex-1 sm:flex-none bg-white rounded-xl sm:shadow-md overflow-hidden sm:border sm:border-neutral-200 p-6 sm:my-auto w-full max-w-2xl">
+            {children}
+          </div>
+        </CSPostHogProvider>
       </body>
     </html>
   );

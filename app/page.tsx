@@ -2,13 +2,15 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { BuildLogs } from "@/components/build-logs";
 import LoadingSpinner from "@/components/loading-spinner";
 import { ProgressBar } from "@/components/progress-bar";
 import { DeploymentStep } from "@/types/deployment";
 import Footer from "@/app/footer";
+import { sendAnalyticsEvent, usePageView } from "@/lib/posthog-provider";
+import { ANALYTICS_EVENTS } from "@/lib/posthog";
 
 const TIMEOUT_MS = 4 * 60 * 1000;
 
@@ -21,9 +23,27 @@ export default function Home() {
   const [deployment, setDeployment] = useState(null);
   const [deploymentStep, setDeploymentStep] = useState<DeploymentStep>(DeploymentStep.IDLE);
 
+  // Track page views and session start
+  usePageView();
+
+  useEffect(() => {
+    // Track session start
+    sendAnalyticsEvent(ANALYTICS_EVENTS.SESSION_STARTED, {
+      'initial-template': selectedTemplate,
+      'initial-tab': activeTab,
+    });
+  }, []);
+
   const onDrop = (acceptedFiles: File[]) => {
     setFile(acceptedFiles[0]);
     setSelectedTemplate(null);
+    
+    // Track file upload
+    sendAnalyticsEvent(ANALYTICS_EVENTS.PROJECT_UPLOADED, {
+      'file-name': acceptedFiles[0].name,
+      'file-size': acceptedFiles[0].size,
+      'file-type': acceptedFiles[0].type,
+    });
   };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -37,6 +57,13 @@ export default function Home() {
     e.preventDefault();
 
     if (!file && !selectedTemplate) return;
+
+    // Track deployment start
+    sendAnalyticsEvent(ANALYTICS_EVENTS.PROJECT_CREATED, {
+      'deployment-method': file ? 'upload' : 'template',
+      'template-id': selectedTemplate,
+      'file-name': file?.name,
+    });
 
     setDeploymentStep(DeploymentStep.CREATING_PROJECT);
     setError("");
@@ -211,6 +238,14 @@ export default function Home() {
 
         setDeployment(data.deployment);
 
+        // Track successful deployment
+        sendAnalyticsEvent(ANALYTICS_EVENTS.PROJECT_DEPLOYED, {
+          'project-id': data.deployment.projectId,
+          'deployment-url': data.deployment.url,
+          'template-id': selectedTemplate,
+          'deployment-method': file ? 'upload' : 'template',
+        });
+
         try {
           const response = await fetch(
             `/api/wait-for-deploy/${data.deployment.url}`,
@@ -270,6 +305,14 @@ export default function Home() {
           setError("Failed to get transfer code");
           return;
         }
+
+        // Track claim URL generation
+        sendAnalyticsEvent(ANALYTICS_EVENTS.CLAIM_URL_GENERATED, {
+          'project-id': data.deployment.projectId,
+          'transfer-code': dataProjectTransfer.code,
+          'template-id': selectedTemplate,
+          'deployment-method': file ? 'upload' : 'template',
+        });
 
         // Use the public project URL for iframe mode, deployment URL for screenshots
         const publicUrl = `https://${projectData.name}.vercel.app`;
@@ -404,6 +447,13 @@ export default function Home() {
                     onClick={() => {
                       setSelectedTemplate(template.id);
                       setFile(null);
+                      
+                      // Track template selection
+                      sendAnalyticsEvent(ANALYTICS_EVENTS.TEMPLATE_SELECTED, {
+                        'template-id': template.id,
+                        'template-name': template.name,
+                        'selection-method': 'click',
+                      });
                     }}
                   >
                     {selectedTemplate === template.id && (

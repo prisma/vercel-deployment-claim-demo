@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import ClaimDeploymentButton from "./claim-deployment-button";
 import WebsitePreview from "./website-preview";
 import WebsitePreviewSkeleton from "./website-preview-skeleton";
+import ClaimPageClient from "./claim-page-client";
 
 export default async function ClaimPage({
   searchParams,
@@ -34,6 +35,7 @@ export default async function ClaimPage({
 
   return (
     <div className="flex flex-col grow space-y-6">
+      <ClaimPageClient />
       <div className="space-y-2">
         <h2 className="text-2xl font-semibold text-neutral-800">
           Your Deployment is Ready

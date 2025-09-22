@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { VERCEL_API_URL } from "@/app/utils/constants";
+import { trackAccessTokenUsage } from "@/lib/analytics-server";
 
 const vercelToken = process.env.ACCESS_TOKEN;
 const teamId = process.env.TEAM_ID;
@@ -34,6 +35,13 @@ export async function POST(req: NextRequest) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify(projectPayload),
+    });
+
+    // Track ACCESS_TOKEN usage
+    await trackAccessTokenUsage('/api/create-project', 'POST', response.ok, req, {
+      'project-name': projectPayload.name,
+      'has-env-vars': !!(environmentVariables && environmentVariables.length > 0),
+      'response-status': response.status,
     });
 
     if (!response.ok) {
