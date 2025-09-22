@@ -6,6 +6,18 @@ export default function Footer() {
     <footer className="py-8">
       <div className="text-center mb-6">
         <h3 className="text-lg font-medium text-gray-800 mb-4">Learn more about this demo</h3>
+        <p className="text-sm text-gray-600 mb-4">
+          Interested in becoming a partner?{" "}
+          <a
+            href="https://www.prisma.io/partners"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            Get in touch with us
+          </a>
+          .
+        </p>
       </div>
       <div className="flex flex-wrap items-center justify-center space-x-6">
         <Link
@@ -60,18 +72,6 @@ export default function Footer() {
         </Link>
       </div>
       <div className="mt-8 text-center text-sm text-gray-500">
-        <p className="mb-2">
-          Interested in becoming a partner?{" "}
-          <a
-            href="https://www.prisma.io/partners"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 hover:text-blue-800 underline"
-          >
-            Get in touch with us
-          </a>
-          .
-        </p>
         <p>© {new Date().getFullYear()} Prisma Data, Inc.</p>
       </div>
     </footer>
