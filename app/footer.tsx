@@ -72,9 +72,6 @@ export default function Footer() {
         </Link>
       </div>
       <div className="mt-8 text-center text-sm text-gray-500">
-        <p className="mb-2">
-          ⚠️ Demo projects are automatically deleted 12 hours after creation
-        </p>
         <p>© {new Date().getFullYear()} Prisma Data, Inc.</p>
       </div>
     </footer>

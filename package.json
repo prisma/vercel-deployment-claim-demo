@@ -5,7 +5,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "clean:up": "npx tsx scripts/cleanup-vercel-projects.ts"
+    "clean:up": "npx tsx scripts/cleanup-vercel-projects.ts",
+    "clean:storage": "npx tsx scripts/cleanup-vercel-storage.ts"
   },
   "dependencies": {
     "@sparticuz/chromium": "133.0.0",
