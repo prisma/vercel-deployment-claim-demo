@@ -11,14 +11,22 @@ Try it out at: [https://app-deploy-demo.prisma.io/](https://app-deploy-demo.pris
 To set up the project, add the following environment variables to your `.env.local` file:
 
 ```bash
+# Required for Vercel API access and project management
 TEAM_ID=""
 ACCESS_TOKEN=""
 INTEGRATION_CONFIG_ID=""
 
+# Required for automated cleanup cron job security
+CRON_SECRET=""
+
 # Configure these to match your Prisma setup
 PRISMA_INTEGRATION_PRODUCT_ID="iap_yVdbiKqs5fLkYDAB"  # or "prisma-postgres"
 DEFAULT_BILLING_PLAN_ID="business"  # Your actual Prisma plan
-VERCEL_REGION="iad1"  # Your preferred region
+VERCEL_REGION="iad1"  # Prisma Postgres database region
+
+# PostHog Analytics (optional)
+NEXT_PUBLIC_POSTHOG_KEY=""
+NEXT_PUBLIC_POSTHOG_HOST="https://us.i.posthog.com"
 ```
 
 ### Required API keys and configuration
@@ -91,14 +99,36 @@ To find your Prisma billing plan:
 3. Look for "Current Installation Level Plan" section
 4. Set `DEFAULT_BILLING_PLAN_ID` to the exact plan name shown (e.g., "business", "pro", "enterprise")
 
-#### 6. Vercel Region
+#### 6. Cron Secret
+
+**Environment variable:** `CRON_SECRET`
+
+**Important:** This is required for securing the automated cleanup cron job endpoint.
+
+Where to get it:
+- Generate a random string of at least 16 characters
+- You can use a password generator like [1Password](https://1password.com/password-generator/)
+- Set this same value in your Vercel project's environment variables
+
+Example:
+```bash
+CRON_SECRET="your-secure-random-string-here"
+```
+
+#### 7. Prisma Postgres Database Region
 
 **Environment variable:** `VERCEL_REGION`
 **Default:** `"iad1"` (us-east-1, Washington, D.C., USA)
 
-**Important:** Choose the region closest to your users for optimal performance.
+**Important:** This specifies the region for your Prisma Postgres database, not Vercel deployments. Choose the region closest to your users for optimal database performance.
 
 Select a region from the [Vercel regions list](https://vercel.com/docs/regions#region-list) and set this value accordingly.
+
+#### 8. PostHog Analytics (Optional)
+
+**Environment variables:** `NEXT_PUBLIC_POSTHOG_KEY` and `NEXT_PUBLIC_POSTHOG_HOST`
+
+These are optional environment variables for analytics tracking. If you don't need analytics, you can leave these empty.
 
 ## Running the development server
 
@@ -115,3 +145,32 @@ pnpm run dev
 ```
 
 Once the server is running, open [http://localhost:3000](http://localhost:3000) in your browser to view the demo application.
+
+## Automated Cleanup
+
+This application includes an automated cleanup system that runs twice daily (6 AM and 6 PM UTC) to remove temporary projects older than 12 hours.
+
+### How it works:
+
+1. **Cron Job**: Configured in `vercel.json` to run at `0 6,18 * * *` (twice daily)
+2. **API Endpoint**: `/api/cleanup-projects` handles the cleanup logic
+3. **Security**: Protected by `CRON_SECRET` environment variable
+4. **Cleanup Criteria**: 
+   - Projects starting with "temp-project"
+   - Older than 12 hours
+   - Created from this repository
+
+### Manual Cleanup
+
+You can also run cleanup manually using the script:
+
+```bash
+pnpm run clean:up
+```
+
+Or call the API endpoint directly (with proper authentication):
+
+```bash
+curl -X POST https://your-domain.vercel.app/api/cleanup-projects \
+  -H "Authorization: Bearer your-cron-secret"
+```
