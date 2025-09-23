@@ -3,6 +3,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { sendAnalyticsEvent } from "@/lib/posthog-provider";
+import { ANALYTICS_EVENTS } from "@/lib/posthog";
 
 export default function ClaimDeploymentButton({ code }: { code: string }) {
   const [returnUrl, setReturnUrl] = useState("");
@@ -13,9 +15,18 @@ export default function ClaimDeploymentButton({ code }: { code: string }) {
     }
   }, []);
 
+  const handleClaimClick = () => {
+    // Track claim button click
+    sendAnalyticsEvent(ANALYTICS_EVENTS.CLAIM_BUTTON_CLICKED, {
+      'transfer-code': code,
+      'return-url': returnUrl,
+    });
+  };
+
   return (
     <Link
       href={`https://vercel.com/claim-deployment?code=${code}&returnUrl=${returnUrl}`}
+      onClick={handleClaimClick}
     >
       {" "}
       <button

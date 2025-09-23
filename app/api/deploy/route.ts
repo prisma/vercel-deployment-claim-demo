@@ -3,6 +3,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import { type NextRequest, NextResponse } from "next/server";
 import { VERCEL_API_URL } from "@/app/utils/constants";
+import { trackAccessTokenUsage } from "@/lib/analytics-server";
 
 const token = process.env.ACCESS_TOKEN;
 const teamId = process.env.TEAM_ID;
@@ -79,6 +80,15 @@ export async function POST(req: NextRequest) {
       }
     );
 
+    // Track file upload ACCESS_TOKEN usage
+    await trackAccessTokenUsage('/api/deploy/upload', 'POST', uploadResponse.ok, req, {
+      'project-name': projectName,
+      'deployment-method': templateKey ? 'template' : 'file',
+      'template-key': templateKey,
+      'file-size': localFileBuffer ? localFileBuffer.length : (file ? file.size : 0),
+      'response-status': uploadResponse.status,
+    });
+
     if (!uploadResponse.ok) {
       const uploadError = await uploadResponse.json().catch(() => ({}));
       console.error("File upload error:", uploadResponse.status, uploadError);
@@ -127,6 +137,15 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify(deploymentPayload),
       }
     );
+
+    // Track deployment ACCESS_TOKEN usage
+    await trackAccessTokenUsage('/api/deploy/deployment', 'POST', deploymentResponse.ok, req, {
+      'project-name': projectName,
+      'deployment-method': templateKey ? 'template' : 'file',
+      'template-key': templateKey,
+      'framework': deploymentPayload.projectSettings.framework,
+      'response-status': deploymentResponse.status,
+    });
 
     if (!deploymentResponse.ok) {
       const errorData = await deploymentResponse.json();

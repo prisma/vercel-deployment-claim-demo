@@ -1,5 +1,6 @@
 import { VERCEL_API_URL } from "@/app/utils/constants";
 import { NextResponse } from "next/server";
+import { trackAccessTokenUsage } from "@/lib/analytics-server";
 
 const vercelToken = process.env.ACCESS_TOKEN;
 const teamId = process.env.TEAM_ID;
@@ -31,6 +32,13 @@ export async function POST(req: Request) {
     );
 
     const json = await res.json();
+
+    // Track ACCESS_TOKEN usage for project transfer
+    await trackAccessTokenUsage('/api/start-project-transfer', 'POST', res.ok, req, {
+      'project-id': projectId,
+      'response-status': res.status,
+      'has-transfer-code': !!(json && json.code),
+    });
 
     if (!res.ok) {
       console.error("Project transfer failed:", res.status, json);
