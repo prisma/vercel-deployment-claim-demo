@@ -1,12 +1,12 @@
 // Server-side PostHog client - only import posthog-node in server context
-export default function PostHogClient() {
+export default async function PostHogClient() {
   if (!process.env.NEXT_PUBLIC_POSTHOG_KEY || !process.env.NEXT_PUBLIC_POSTHOG_HOST) {
     return null
   }
   
   // Dynamic import to avoid bundling posthog-node in client
   if (typeof window === 'undefined') {
-    const { PostHog } = require('posthog-node')
+    const { PostHog } = await import('posthog-node')
     const posthogClient = new PostHog(
       process.env.NEXT_PUBLIC_POSTHOG_KEY,
       {

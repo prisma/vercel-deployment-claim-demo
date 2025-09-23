@@ -32,7 +32,7 @@ export default function Home() {
       'initial-template': selectedTemplate,
       'initial-tab': activeTab,
     });
-  }, []);
+  }, [selectedTemplate, activeTab]);
 
   const onDrop = (acceptedFiles: File[]) => {
     setFile(acceptedFiles[0]);
