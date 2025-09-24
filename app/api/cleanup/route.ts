@@ -12,6 +12,7 @@ async function performFullCleanup(baseUrl: string, authHeader: string | null) {
 
   // Call project cleanup
   try {
+    console.log("🔄 Calling project cleanup endpoint...");
     const projectResponse = await fetch(`${baseUrl}/api/cleanup-projects`, {
       method: "POST",
       headers: {
@@ -20,19 +21,53 @@ async function performFullCleanup(baseUrl: string, authHeader: string | null) {
       },
     });
 
+    console.log("📊 Project cleanup response status:", projectResponse.status);
+    const responseText = await projectResponse.text();
+    console.log(
+      "📝 Project cleanup response preview:",
+      responseText.substring(0, 100)
+    );
+
     if (projectResponse.ok) {
-      const projectData = await projectResponse.json();
-      results.projects = projectData.results;
+      try {
+        const projectData = JSON.parse(responseText);
+        results.projects = projectData.results;
+        console.log("✅ Project cleanup successful");
+      } catch (parseError) {
+        results.errors.push(
+          `Project cleanup response parsing failed: ${responseText.substring(
+            0,
+            200
+          )}...`
+        );
+        console.log("❌ Project cleanup JSON parse failed");
+      }
     } else {
-      const errorData = await projectResponse.json();
-      results.errors.push(`Project cleanup failed: ${errorData.error}`);
+      try {
+        const errorData = JSON.parse(responseText);
+        results.errors.push(
+          `Project cleanup failed (${projectResponse.status}): ${errorData.error}`
+        );
+      } catch (parseError) {
+        results.errors.push(
+          `Project cleanup failed (${
+            projectResponse.status
+          }): ${responseText.substring(0, 200)}...`
+        );
+      }
+      console.log(
+        "❌ Project cleanup failed with status:",
+        projectResponse.status
+      );
     }
   } catch (error) {
     results.errors.push(`Project cleanup error: ${(error as Error).message}`);
+    console.log("💥 Project cleanup threw error:", (error as Error).message);
   }
 
   // Call storage cleanup
   try {
+    console.log("🔄 Calling storage cleanup endpoint...");
     const storageResponse = await fetch(`${baseUrl}/api/cleanup-storage`, {
       method: "POST",
       headers: {
@@ -41,15 +76,48 @@ async function performFullCleanup(baseUrl: string, authHeader: string | null) {
       },
     });
 
+    console.log("📊 Storage cleanup response status:", storageResponse.status);
+    const responseText = await storageResponse.text();
+    console.log(
+      "📝 Storage cleanup response preview:",
+      responseText.substring(0, 100)
+    );
+
     if (storageResponse.ok) {
-      const storageData = await storageResponse.json();
-      results.storage = storageData.results;
+      try {
+        const storageData = JSON.parse(responseText);
+        results.storage = storageData.results;
+        console.log("✅ Storage cleanup successful");
+      } catch (parseError) {
+        results.errors.push(
+          `Storage cleanup response parsing failed: ${responseText.substring(
+            0,
+            200
+          )}...`
+        );
+        console.log("❌ Storage cleanup JSON parse failed");
+      }
     } else {
-      const errorData = await storageResponse.json();
-      results.errors.push(`Storage cleanup failed: ${errorData.error}`);
+      try {
+        const errorData = JSON.parse(responseText);
+        results.errors.push(
+          `Storage cleanup failed (${storageResponse.status}): ${errorData.error}`
+        );
+      } catch (parseError) {
+        results.errors.push(
+          `Storage cleanup failed (${
+            storageResponse.status
+          }): ${responseText.substring(0, 200)}...`
+        );
+      }
+      console.log(
+        "❌ Storage cleanup failed with status:",
+        storageResponse.status
+      );
     }
   } catch (error) {
     results.errors.push(`Storage cleanup error: ${(error as Error).message}`);
+    console.log("💥 Storage cleanup threw error:", (error as Error).message);
   }
 
   return results;
@@ -69,6 +137,8 @@ export async function POST(request: NextRequest) {
 
     // Get the base URL for internal API calls
     const baseUrl = request.nextUrl.origin;
+    console.log("📍 Base URL for internal calls:", baseUrl);
+    console.log("🔐 Auth header present:", !!authHeader);
 
     const results = await performFullCleanup(baseUrl, authHeader);
 
@@ -86,7 +156,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: !hasErrors || successfulOperations.length > 0,
       message: hasErrors
-        ? `Partial cleanup completed. Successful: ${successfulOperations.join(", ")}`
+        ? `Partial cleanup completed. Successful: ${successfulOperations.join(
+            ", "
+          )}`
         : "Full cleanup completed successfully",
       results,
     });
