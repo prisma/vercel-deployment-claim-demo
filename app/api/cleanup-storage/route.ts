@@ -117,7 +117,9 @@ async function fetchAllStorageStores(): Promise<StorageStore[]> {
 /**
  * Filter storage stores based on criteria
  */
-function filterStorageStoresForDeletion(stores: StorageStore[]): StorageStore[] {
+function filterStorageStoresForDeletion(
+  stores: StorageStore[]
+): StorageStore[] {
   const now = Date.now();
   const thresholdTime = now - HOURS_THRESHOLD * 60 * 60 * 1000;
 
@@ -146,7 +148,9 @@ async function deleteStorageStore(store: StorageStore): Promise<boolean> {
     return true;
   } catch (error) {
     console.error(
-      `Failed to delete storage store ${store.name}: ${(error as Error).message}`
+      `Failed to delete storage store ${store.name}: ${
+        (error as Error).message
+      }`
     );
     return false;
   }
@@ -195,7 +199,8 @@ async function performStorageCleanup() {
   const allStorageStores = await fetchAllStorageStores();
 
   // Filter storage stores for deletion
-  const storageStoresToDelete = filterStorageStoresForDeletion(allStorageStores);
+  const storageStoresToDelete =
+    filterStorageStoresForDeletion(allStorageStores);
 
   // Delete storage stores
   const results = await deleteStorageStores(storageStoresToDelete);
@@ -216,10 +221,19 @@ async function performStorageCleanup() {
 export async function POST(request: NextRequest) {
   try {
     // Verify the request is authorized - Vercel automatically sends CRON_SECRET as Bearer token
+    // Also allow internal calls from the main cleanup endpoint
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
+    const internalCallHeader = request.headers.get("x-internal-call");
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    // Check if this is an internal call (from our own cleanup endpoint)
+    const isInternalCall = internalCallHeader === "true";
+
+    if (
+      cronSecret &&
+      !isInternalCall &&
+      authHeader !== `Bearer ${cronSecret}`
+    ) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

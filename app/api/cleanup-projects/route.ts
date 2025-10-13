@@ -252,10 +252,15 @@ async function performCleanup() {
 export async function POST(request: NextRequest) {
   try {
     // Verify the request is authorized - Vercel automatically sends CRON_SECRET as Bearer token
+    // Also allow internal calls from the main cleanup endpoint
     const authHeader = request.headers.get("authorization");
     const cronSecret = process.env.CRON_SECRET;
+    const internalCallHeader = request.headers.get("x-internal-call");
+    
+    // Check if this is an internal call (from our own cleanup endpoint)
+    const isInternalCall = internalCallHeader === "true";
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    if (cronSecret && !isInternalCall && authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 

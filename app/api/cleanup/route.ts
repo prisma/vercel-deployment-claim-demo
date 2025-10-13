@@ -17,6 +17,7 @@ async function performFullCleanup(baseUrl: string, authHeader: string | null) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-internal-call": "true",
         ...(authHeader ? { Authorization: authHeader } : {}),
       },
     });
@@ -72,6 +73,7 @@ async function performFullCleanup(baseUrl: string, authHeader: string | null) {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
+        "x-internal-call": "true",
         ...(authHeader ? { Authorization: authHeader } : {}),
       },
     });
